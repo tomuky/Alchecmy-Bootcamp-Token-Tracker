@@ -53,6 +53,12 @@ const App = () => {
         setResults(data);
     
         const tokenDataPromises = [];
+        if(data.tokenBalances.length>50){
+            setLoading(false);
+            setUserAddress('');
+            alert('too many tokens')
+            return;
+        }
         for (let i = 0; i < data.tokenBalances.length; i++) {
           const tokenData = alchemy.core.getTokenMetadata(
             data.tokenBalances[i].contractAddress
