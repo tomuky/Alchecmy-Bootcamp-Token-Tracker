@@ -29,6 +29,10 @@ const App = () => {
     setUserAddress(accounts[0]);
   }
 
+  const removeWallet = () => {
+    setUserAddress('');
+  }
+
   useEffect(()=>{
     const getTokenBalance = async () => {
         if(loading) return;
@@ -57,6 +61,20 @@ const App = () => {
       }
       getTokenBalance();
   },[userAddress]);
+
+  const placeholderCoinImage = () => {
+    return (
+        <Box
+            width='3vw' height='3vw' m='1vw'
+            backgroundColor='white'
+            borderRadius='100'
+            color='black' fontWeight='bold'
+            display='flex' justifyContent={'center'} alignItems={'center'}
+        >
+            ?
+        </Box>
+    )
+  }
 
   return (
     <Box w="100vw">
@@ -105,8 +123,14 @@ const App = () => {
 
         {hasQueried && <Heading my={36}>Address: {`${userAddress.substring(0,5)}...${userAddress.substring(userAddress.length-3)}`}</Heading>}
 
+        { hasQueried && 
+            <Button fontSize={12} onClick={removeWallet} mb={40}>
+                Disconnect wallet
+            </Button>
+        }
+
         {hasQueried && (
-          <SimpleGrid w={'90vw'} columns={4} spacing={24}>
+          <SimpleGrid  columns={1} spacing={24} mb='200px'>
             {results.tokenBalances.map((e, i) => {                
                 if(hasSpecialChar(tokenDataObjects[i].symbol)) return;
                 if(Utils.formatUnits(
@@ -115,20 +139,23 @@ const App = () => {
                   )<0.0001) return;
               return (
                 <Flex
-                  flexDir='column'
                   color="white"
                   bg="#494949"
-                  width="20vw"
+                  width="50vw"
                   key={`f_${i}`}
+                  borderRadius='3px'
                 >
-                  <Box>
-                    <b>Symbol:</b> ${tokenDataObjects[i].symbol}&nbsp;
-                  </Box>
-                  <Box>
-                    <b>Balance:</b>&nbsp;
-                    { Math.round(Utils.formatUnits(e.tokenBalance,tokenDataObjects[i].decimals)*100)/100 }
-                  </Box>
-                  <Image src={tokenDataObjects[i].logo} />
+                    { tokenDataObjects[i].logo && <Image src={tokenDataObjects[i].logo} width='3vw' m='1vw'/> }
+                    { !tokenDataObjects[i].logo && placeholderCoinImage(tokenDataObjects[i].name||'')}
+
+                    <Box display='flex' justifyContent='space-between' width='85%'>
+                        <Box display='flex' alignItems='center' justifyContent='center'>
+                            <b>{tokenDataObjects[i].name}</b>
+                        </Box>
+                        <Box display='flex' alignItems='center' justifyContent='center'>
+                            { Math.round(Utils.formatUnits(e.tokenBalance,tokenDataObjects[i].decimals)*100)/100 }
+                        </Box>
+                    </Box>
                 </Flex>
               );
             })}
