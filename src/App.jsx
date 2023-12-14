@@ -18,9 +18,13 @@ const App = () => {
     provider = new ethers.providers.Web3Provider(window.ethereum);
   }
 
-  const updateUserAddressHandler = (addy) => {
-    if(!ethers.utils.isAddress(addy)) return;
-    setUserAddress(addy);
+  const updateUserAddressHandler = async (addy) => {
+    if(ethers.utils.isAddress(addy)) setUserAddress(addy);
+    if(addy.substring(addy.length-4) !== '.eth') return;
+
+    const alchemy = new Alchemy({ apiKey: import.meta.env.VITE_ALCHEMY_API_KEY, network: Network.ETH_MAINNET });
+    const ensAddy = await alchemy.core.resolveName(addy);
+    if(ethers.utils.isAddress(ensAddy)) setUserAddress(ensAddy);
   }
 
   const connectWallet = async () => {
@@ -31,6 +35,7 @@ const App = () => {
 
   const removeWallet = () => {
     setUserAddress('');
+    setHasQueried(false);
   }
 
   useEffect(()=>{
